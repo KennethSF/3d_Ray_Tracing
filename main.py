@@ -1,25 +1,24 @@
 """Python Raytracer"""
 
-from image import Image
 from color import Color
+from point import Point
+from vector import Vector
+from sphere import Sphere
+from scene import Scene
+from engine import RenderEngine
 
 def main():
-    WIDTH=3
-    HEIGHT=2
-    im= Image(WIDTH,HEIGHT)
-    red= Color(x=1,y=0,z=0)
-    green= Color(x=0,y=1,z=0)
-    blue= Color(x=0,y=0,z=1)
-    im.set_pixel(0,0,red)
-    im.set_pixel(1,0,green)
-    im.set_pixel(2,0,blue)
+    WIDTH=320 #800
+    HEIGHT=200 #500
+    camera=Vector(0,0,-1)
 
-    im.set_pixel(0,1,red+green)
-    im.set_pixel(1,1,red+green+blue)
-    im.set_pixel(2,1,red* 0.001)
+    objects=[Sphere(Point(0,0,0),0.5,Color.from_hex("#FF0000"))]
+    scene= Scene(camera,objects,WIDTH,HEIGHT)
+    engine= RenderEngine()
+    image=engine.render(scene)
 
     with open("test.ppm","w") as img_file:#Opens a file called test and activate the write function
-        im.write_ppm(img_file)
+        image.write_ppm(img_file)
 
 if __name__== "__main__":
     main()

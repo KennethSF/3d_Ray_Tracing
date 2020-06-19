@@ -14,7 +14,7 @@ class Image():
         def to_byte(c):
             return round(max(min(c*255,255),0))
 
-        img_file.write("P3 {}{}\n255\n".format(self.width,self.height))
+        img_file.write("P3 {} {}\n255\n".format(self.width,self.height))
         for row in self.pixels:
             for color in row:
                 img_file.write(
