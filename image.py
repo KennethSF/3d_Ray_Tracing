@@ -8,8 +8,6 @@ class Image():
     def set_pixel(self,x,y,col):
         self.pixels[y][x]=col
 
-    
-
     def write_ppm(self,img_file):
         def to_byte(c):
             return round(max(min(c*255,255),0))

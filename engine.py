@@ -2,10 +2,16 @@ from image import Image
 from ray import Ray
 from point import Point
 from color import Color
+import random
+from utilities import probability
 
 class RenderEngine:
-    #Renders 3d objects into 2d objects using ray tracing
+    MAX_DEPTH= random.randint(1,5)
+    MIN_DISPLACE=0.0001
+    #Renders 3d objects into 2d objects using ray tracing        
+
     def render(self, scene):
+        #Creates the scene
         width = scene.width
         height = scene.height
         aspect_ratio = float(width) / height
@@ -19,39 +25,49 @@ class RenderEngine:
         camera = scene.camera
         pixels = Image(width, height)
 
+        #Gets a pixel
         for j in range(height):
             y = y0 + j * ystep
             for i in range(width):
-                x = x0 + i * xstep
-                ray = Ray(camera, Point(x, y) - camera)
-                pixels.set_pixel(i, j, self.ray_trace(ray, scene))
-            print("{:3.0f}%".format(float(j) / float(height) * 100), end="\r")
-        return pixels
+                if(probability()):      #Monte Carlo method, calculates a probability, if return true calculates
+                    x = x0 + i * xstep  #The raytrace of the pixel, otherwise creates a black pixel
+                    ray = Ray(camera, Point(x, y) - camera) #Creates a ray from the camera to the point
+                    pixels.set_pixel(i, j, self.ray_trace(ray, scene)) #Raytracing method
+                else:
+                    pixels.set_pixel(i, j, Color.from_hex("#000000"))#Creates a black pixel
+            print("{:3.0f}%".format(float(j) / float(height) * 100), end="\r") #Progress bar
+        return pixels #Return the image
 
-    def ray_trace(self, ray, scene):
+    def ray_trace(self, ray, scene, depth=0):
         color = Color(0, 0, 0)
         # Find the nearest object hit by the ray in the scene
         dist_hit, obj_hit = self.find_nearest(ray, scene)
-        if obj_hit is None:
+        if obj_hit is None: 
             return color
         hit_pos = ray.origin + ray.direction * dist_hit
         hit_normal = obj_hit.normal(hit_pos)
-        color += self.color_at(obj_hit, hit_pos, hit_normal, scene)
+        color += self.color_at(obj_hit, hit_pos, hit_normal, scene) #Gets the color of the pixel
+        if depth<self.MAX_DEPTH:
+            new_ray_pos= hit_pos + hit_normal * self.MIN_DISPLACE
+            new_ray_dir= ray.direction - 2 * ray.direction.dot_product(hit_normal) * hit_normal
+            new_ray= Ray(new_ray_pos,new_ray_dir)
+            #Attenuate the reflected ray by the reflection coefficient
+            color += self.ray_trace(new_ray,scene,depth+1) * obj_hit.material.reflection 
         return color
 
-    def find_nearest(self, ray, scene):
+    def find_nearest(self, ray, scene): #Find the narest object hitted by the ray
         dist_min = None
         obj_hit = None
         for obj in scene.objects:
             dist = obj.intersects(ray)
-            if dist is not None and (obj_hit is None or dist < dist_min):
-                dist_min = dist
+            if dist is not None and (obj_hit is None or dist < dist_min): #Ensure that the object hitted is
+                dist_min = dist                                           #the nearest
                 obj_hit = obj
         return (dist_min, obj_hit)
 
     def color_at(self, obj_hit, hit_pos, normal, scene):
-        material = obj_hit.material
-        obj_color = material.color_at(hit_pos)
+        material = obj_hit.material 
+        obj_color = material.color_at(hit_pos)#Gets the color of the shere
         to_cam = scene.camera - hit_pos
         specular_k = 50
         color = material.ambient * Color.from_hex("#000000")

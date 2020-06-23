@@ -1,27 +1,28 @@
-"""Python Raytracer"""
+#!/usr/bin/env python
+"""Puray - a Pure Python Raytracer by Arun Ravindran, 2019"""
+import argparse
+import importlib
+import os
 
-from color import Color
-from point import Point
-from vector import Vector
-from sphere import Sphere
+from engine import RenderEngine
 from scene import Scene
 from engine import RenderEngine
-from light import Light
-from material import Material
+
 
 def main():
-    WIDTH=320 #800
-    HEIGHT=200 #500
-    camera=Vector(0,0,-1)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("scene", help="Path to scene file (without .py extension)")#Ask for the name of the
+    args = parser.parse_args()                                                     #module
+    mod = importlib.import_module(args.scene) #Imports the module
 
-    objects=[Sphere(Point(0,0,0),0.5,Material(Color.from_hex("#FF0000")))]
-    lights=[Light(Point(1.5,-0.5,-10.0),Color.from_hex("#FFFFFF"))]
-    scene= Scene(camera,objects,lights,WIDTH,HEIGHT)
-    engine= RenderEngine()
-    image=engine.render(scene)
-
-    with open("test.ppm","w") as img_file:#Opens a file called test and activate the write function
+    #Creates the scene unsing the mod information
+    scene = Scene(mod.CAMERA, mod.OBJECTS, mod.LIGHTS, mod.WIDTH, mod.HEIGHT)
+    engine = RenderEngine() #Creates an instance of the render     
+    image = engine.render(scene) #Creates a image rendering the data
+    os.chdir(os.path.dirname(os.path.abspath(mod.__file__))) #Creates a dir using the name in the mod
+    with open(mod.RENDERED_IMG, "w") as img_file: #Open the ppm image and store the pixels
         image.write_ppm(img_file)
 
-if __name__== "__main__":
+
+if __name__ == "__main__":
     main()
