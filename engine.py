@@ -3,7 +3,6 @@ from ray import Ray
 from point import Point
 from color import Color
 import random
-from utilities import probability
 
 class RenderEngine:
     MAX_DEPTH= random.randint(1,5)
@@ -29,7 +28,7 @@ class RenderEngine:
         for j in range(height):
             y = y0 + j * ystep
             for i in range(width):
-                if(probability()):      #Monte Carlo method, calculates a probability, if return true calculates
+                if(self.probability()):      #Monte Carlo method, calculates a probability, if return true calculates
                     x = x0 + i * xstep  #The raytrace of the pixel, otherwise creates a black pixel
                     ray = Ray(camera, Point(x, y) - camera) #Creates a ray from the camera to the point
                     pixels.set_pixel(i, j, self.ray_trace(ray, scene)) #Raytracing method
@@ -88,3 +87,10 @@ class RenderEngine:
                 * max(normal.dot_product(half_vector), 0) ** specular_k
             )
         return color
+
+    def probability(self):
+        x=random.randint(0,100)/100.0
+        if(x>=0):
+            return True
+        else:
+            return False

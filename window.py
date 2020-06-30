@@ -2,12 +2,18 @@ from tkinter import *
 from tkinter import colorchooser
 from tkinter import Canvas
 import time
+import utilities
 
 class mainWindow:
     floorColor1= "#f7e491"
     floorColor2= "#91f7ec"
 
     def __init__(self, master,geometry):
+        self.floor=None
+        self.sphere_colors= None
+        self.light_colors= None
+        self.light_positions= None        
+
         self.master = master
         self.frame = Frame(self.master)
         self.master.geometry(geometry)
@@ -34,13 +40,14 @@ class mainWindow:
                        width="6",height="1",bg="#000033",font=("Cambria",12),fg="#FFFFFF").place(x=155,y=145)
         self.frame.pack(fill="both", expand=True)
         #Render image
-        self.btn_floor = Button(self.frame,text="Render Image", command=self.get_floor,
+        self.btn_render = Button(self.frame,text="Render Image", command=self.createScene,
                        width="20",height="1",bg="#000033",font=("Cambria",12),fg="#FFFFFF").place(x=30,y=230)
 
     #Stores the floor colors
     def floorColors(self,color1,color2):
         self.fcolor1=color1
         self.fcolor2=color2
+        self.floor=[self.fcolor1,self.fcolor2]
         print("Color 1: ",self.fcolor1," Color2: ",self.fcolor2)
     
     def sphereColors(self,colors):
@@ -74,6 +81,12 @@ class mainWindow:
         max=self.l_ammount.get()
         self.lightWindow=Toplevel(self.master)
         self.app = lightWindow(self.lightWindow,'700x394',max,self.lightPos)
+
+    def createScene(self):
+        print(self.light_positions)
+        utilities.createScene(self.floor,self.sphere_colors,self.light_colors,self.light_positions)
+        #floorColors,sphereColors,lightColors,lightPositions
+        #createScene(self.floor,self.sphere_colors,self.light_colors,self.lightPos):
 
 class floorWindow:
     def __init__(self, master,geometry, color_action):
