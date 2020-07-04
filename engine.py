@@ -3,13 +3,14 @@ from ray import Ray
 from point import Point
 from color import Color
 import random
+import time
 
 class RenderEngine:
-    MAX_DEPTH= random.randint(1,5)
+    MAX_DEPTH= 10#random.randint(1,5)
     MIN_DISPLACE=0.0001
     #Renders 3d objects into 2d objects using ray tracing        
 
-    def render(self, scene):
+    def prepareRender(self, scene):
         #Creates the scene
         width = scene.width
         height = scene.height
@@ -23,7 +24,21 @@ class RenderEngine:
 
         camera = scene.camera
         pixels = Image(width, height)
+        
+        return self.throughRender(width,height,camera,pixels,scene,y0,ystep,x0,xstep) #Return the image
 
+    def fullRender(self,width,height,camera,pixels,scene,y0,ystep,x0,xstep):
+        #Gets a pixel
+        for j in range(height):
+            y = y0 + j * ystep
+            for i in range(width):
+                x = x0 + i * xstep  #The raytrace of the pixel, otherwise creates a black pixel
+                ray = Ray(camera, Point(x, y) - camera) #Creates a ray from the camera to the point
+                pixels.set_pixel(i, j, self.ray_trace(ray, scene)) #Raytracing method
+            print("{:3.0f}%".format(float(j) / float(height) * 100), end="\r") #Progress bar
+        return pixels
+
+    def probRender(self,width,height,camera,pixels,scene,y0,ystep,x0,xstep):
         #Gets a pixel
         for j in range(height):
             y = y0 + j * ystep
@@ -35,7 +50,47 @@ class RenderEngine:
                 else:
                     pixels.set_pixel(i, j, Color.from_hex("#000000"))#Creates a black pixel
             print("{:3.0f}%".format(float(j) / float(height) * 100), end="\r") #Progress bar
-        return pixels #Return the image
+        return pixels
+
+    def maxPixelRender(self,width,height,camera,pixels,scene,y0,ystep,x0,xstep): #Only raytraces a maximun ammount of
+        #Gets a pixel                                                              pixels
+        max= width*height*0.75
+        flag= True
+
+        for j in range(height):
+            y = y0 + j * ystep
+            for i in range(width):
+                x = x0 + i * xstep  
+                pixels.set_pixel(i, j, Color.from_hex("#000000"))#Creates a black pixel
+        print("Terminado")
+        while flag:
+        #for j in range(height):
+            j=random.randint(0,height-1)
+            y = y0 + j * ystep
+            i=random.randint(0,width-1)
+            x = x0 + i * xstep  #The raytrace of the pixel, otherwise creates a black pixel
+            ray = Ray(camera, Point(x, y) - camera) #Creates a ray from the camera to the point
+            pixels.set_pixel(i, j, self.ray_trace(ray, scene)) #Raytracing method
+            max-=1 #Decreases the max pixels allowed
+            if(max<=0):
+                flag=False
+        #print("{:3.0f}%".format(float(j) / float(height) * 100), end="\r") #Progress bar
+        return pixels
+
+    def throughRender(self,width,height,camera,pixels,scene,y0,ystep,x0,xstep):
+        #Gets a pixel
+        for j in range(height):
+            y = y0 + j * ystep
+            for i in range(width):
+                x = x0 + i * xstep  
+                if(i%2!=0):
+                    pixels.set_pixel(i, j, Color.from_hex("#000000"))#Creates a black pixel
+                else:
+                    ray = Ray(camera, Point(x, y) - camera) #Creates a ray from the camera to the point
+                    pixels.set_pixel(i, j, self.ray_trace(ray, scene)) #Raytracing method
+        return pixels
+    
+    
 
     def ray_trace(self, ray, scene, depth=0):
         color = Color(0, 0, 0)
@@ -90,7 +145,7 @@ class RenderEngine:
 
     def probability(self):
         x=random.randint(0,100)/100.0
-        if(x>=0):
+        if(x>=0.30):
             return True
         else:
             return False

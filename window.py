@@ -3,6 +3,7 @@ from tkinter import colorchooser
 from tkinter import Canvas
 import time
 import utilities
+import time
 
 class mainWindow:
     floorColor1= "#f7e491"
@@ -84,7 +85,9 @@ class mainWindow:
 
     def createScene(self):
         print(self.light_positions)
+        start_time= time.time()
         utilities.createScene(self.floor,self.sphere_colors,self.light_colors,self.light_positions)
+        print("--- %s seconds ---" % (time.time() - start_time))
         #floorColors,sphereColors,lightColors,lightPositions
         #createScene(self.floor,self.sphere_colors,self.light_colors,self.lightPos):
 
@@ -123,13 +126,13 @@ class floorWindow:
 
     #The two functions picks the colors and update the labels to show what the user choose
     def getColor1(self):
-        floorColor1=colorchooser.askcolor(parent=self.master)[1]
-        self.lbl_color1= Label(self.master,bg= floorColor1,fg="white",
+        self.floorColor1=colorchooser.askcolor(parent=self.master)[1]
+        self.lbl_color1= Label(self.master,bg= self.floorColor1,fg="white",
                         height="1",width="5",borderwidth=2, relief="groove").place(x=130,y=72)
     
     def getColor2(self):
-        floorColor2=colorchooser.askcolor(parent=self.master)[1]
-        self.lbl_color2= Label(self.master,bg= floorColor2,fg="white",
+        self.floorColor2=colorchooser.askcolor(parent=self.master)[1]
+        self.lbl_color2= Label(self.master,bg= self.floorColor2,fg="white",
         height="1",width="5",borderwidth=2, relief="groove").place(x=130,y=122)
 
 class colorWindow:
@@ -181,7 +184,7 @@ class colorWindow:
         self.btn_color = Button(self.frame,text=("Color ",self.sphere_control), command=self.getColor,width="10",
                                 height="1",bg="#000033",font=("Cambria",9),fg="#FFFFFF")
         self.btn_color.place(x=42,y=70)
-        if(self.sphere_control==self.max):
+        if(self.sphere_control>=self.max):
             self.btn_aux.destroy()
             self.btn_aux = Button(self.frame,text=("Finish"), command=self.done,width="10",
                                     height="1",bg="#000033",font=("Cambria",9),fg="#FFFFFF")

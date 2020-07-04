@@ -39,7 +39,7 @@ def createScene(floorColors,sphereColors,lightColors,lightPositions):
     createLights(LIGHTS,lightColors,lightPositions)
     scene = Scene(CAMERA, OBJECTS, LIGHTS, WIDTH, HEIGHT)
     engine = RenderEngine() #Creates an instance of the render     
-    image = engine.render(scene) #Creates a image rendering the data
+    image = engine.prepareRender(scene) #Creates a image rendering the data
     #os.chdir(os.path.dirname(os.path.abspath(mod.__file__))) #Creates a dir using the name in the mod
     with open(RENDERED_IMG, "w") as img_file: #Open the ppm image and store the pixels
         image.write_ppm(img_file)
@@ -60,7 +60,7 @@ def createLights(LIGHTS,lightColors,lightPos):
         x=(lightPos[i][0]*3.5/700)-1.75 # Gets a scale por the x axis
         y=(lightPos[i][1]*3.5/394)-1.75 # Gets a scale por the y axis
         print("X pos:" ,x, "Y pos: ",y)
-        LIGHTS.append(Light(Point(x, y, random.randint(-10,0)), Color.from_hex(color)))
+        LIGHTS.append(Light(Point(x, y, random.randint(-5,0)), Color.from_hex(color)))
         i+=1
         
     pass
